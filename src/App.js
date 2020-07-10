@@ -1,41 +1,52 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
-import products from './data/products.json';
+import productsJson from './data/products.json';
 
 export default class App extends React.Component {
 
   state = {
     displayProducts: [],
+    searchText: '',
   };
 
 
   products() {
-    let data = products;
-    return data;
+    // NOTE: CACHE THIS
+    return productsJson.filter((product) => product.facility === 'SF');
   };
 
   displayProducts() {
     return this.state.displayProducts.map((product) => {
-      return (<div>{product.name + ' ' + product.strength}</div>
+      return (<div onClick={() => this.selectProduct(product)}>{product.name + ' - ' + product.strength}</div>
       );
     });
   }
 
   setDisplayProducts(e) {
     let searchValue = e.target.value;
-    let matchingProducts = products.filter((product) => product.name.includes(searchValue.toUpperCase()));
-    this.setState({displayProducts: matchingProducts});
+    let matchingProducts = [];
+    if (searchValue) {
+      matchingProducts = this.products().filter((product) => product.name.includes(searchValue.toUpperCase()));
+    }
+    this.setState({ displayProducts: matchingProducts, searchText: searchValue });
   }
 
-  render () {
+  selectProduct(product) {
+    let displayName = product.name + ' - ' + product.strength;
+    this.setState({ searchText: displayName });
+  }
+
+  render() {
     return (
       <div>
-        <input onChange={(e) => {
-          this.setDisplayProducts.bind(this)
-          this.setDisplayProducts(e)
-          }} type="text"/>
-        <div className="dropdown-options">
+        <input value={this.state.searchText}
+          onChange={(e) => {
+            this.setDisplayProducts.bind(this)
+            this.setDisplayProducts(e)
+          }} type="text" />
+        <div
+          className="dropdown-options">
           {this.displayProducts()}
         </div>
       </div>
